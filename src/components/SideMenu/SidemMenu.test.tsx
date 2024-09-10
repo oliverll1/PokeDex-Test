@@ -13,13 +13,14 @@ const queryClient = new QueryClient();
 
 describe('SideMenu Component', () => {
   afterEach(() => {
-    queryClient.clear();
     jest.clearAllMocks();
+    queryClient.clear();
   });
 
   // Test loading state
   test('renders loading state correctly', async () => {
-    (fetchAllKantoPokemon as jest.Mock).mockResolvedValueOnce(new Promise(() => {}));
+    jest.useFakeTimers();
+    (fetchAllKantoPokemon as jest.Mock).mockResolvedValueOnce(new Promise(resolve => setTimeout(resolve, 1000)));
 
     render(
       <QueryClientProvider client={queryClient}>

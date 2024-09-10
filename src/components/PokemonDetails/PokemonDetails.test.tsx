@@ -15,14 +15,15 @@ jest.mock('../../assets/vector/bug.svg', () => 'mocked-svg');
 const queryClient = new QueryClient();
 
 describe('PokemonDetails Component', () => {
-    beforeEach(() => {
-        queryClient.clear();
+    afterEach(() => {
         jest.clearAllMocks();
+        queryClient.clear();
     });
 
     // Test loading state
     test('renders loading state correctly', () => {
-        (fetchPokemonDetail as jest.Mock).mockImplementation(() => new Promise(() => {}));
+        jest.useFakeTimers();
+        (fetchPokemonDetail as jest.Mock).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 1000)));
         
         render(
             <QueryClientProvider client={queryClient}>
@@ -51,12 +52,12 @@ describe('PokemonDetails Component', () => {
             </QueryClientProvider>
         );
 
-        await waitFor(() => expect(screen.getByTestId('pokemon-details-error')).toBeInTheDocument(), { timeout: 3000 });
+        await waitFor(() => expect(screen.getByTestId('pokemon-details-error')).toBeInTheDocument(), { timeout: 1000 });
     });
 
     // Test success state
-    test('renders pokemon details correctly', async () => {    
-        (fetchPokemonDetail as jest.Mock).mockResolvedValueOnce(mockGetPokemon );
+    test('renders pokemon details correctly', async () => {
+        (fetchPokemonDetail as jest.Mock).mockResolvedValueOnce(mockGetPokemon);
 
         render(
             <QueryClientProvider client={queryClient}>
@@ -68,7 +69,7 @@ describe('PokemonDetails Component', () => {
             </QueryClientProvider>
         );
 
-        await waitFor(() => expect(screen.getByTestId('pokemon-details')).toBeInTheDocument(), { timeout: 3000 });
+        await waitFor(() => expect(screen.getByTestId('pokemon-details')).toBeInTheDocument(), { timeout: 1000 });
 
         expect(screen.getByTestId('pokemon-name')).toHaveTextContent('bulbasaur');
         expect(screen.getByTestId('pokemon-id')).toHaveTextContent('#001');
