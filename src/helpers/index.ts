@@ -31,17 +31,30 @@ export type AppPkmnDetail = {
   species: string;
 };
 
-// Helper function. given a color, returns whether it is dark or light
-export const isDark = (color: string) : boolean => {
+// Helper function: given a color, returns whether it is dark or light
+export const isDark = (color: string): boolean => {
   // Convert hex to RGB
   const hex = color.replace(/^#/, '');
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
   const b = parseInt(hex.substring(4, 6), 16);
 
-  // Calculate luminance
-  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  return luminance < 0.5;
+  // Helper function to convert sRGB to linear RGB
+  const linearize = (value: number): number => {
+    const v = value / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+
+  // Linearize the RGB values
+  const rLin = linearize(r);
+  const gLin = linearize(g);
+  const bLin = linearize(b);
+
+  // Calculate luminance using the linearized values
+  const luminance = 0.2126 * rLin + 0.7152 * gLin + 0.0722 * bLin;
+
+  // Return whether the luminance indicates a dark color according to the set threshold
+  return luminance < 0.3;
 };
 
 /**
